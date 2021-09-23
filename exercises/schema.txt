@@ -1,0 +1,30 @@
+<index>
+   <precision>
+       <likeness>one</likeness>
+       dot.com
+   </precision>
+   obscurity
+</index>
+
+Can the schema above represent anything useful?
+
+Deeper Schema - to check the tabs
+<outer>
+   <inner>
+       <core>
+           <detail>Notepad 1</detail>
+           core items are here.
+           <detail>
+               <fine>Notepad Indent</fine>
+               Notepad is probably useful
+               <fine>
+                   <id>99</id>
+                   Id is not notation
+               </fine>
+           </detail>
+           additional core items are here
+       </core>
+       Inner Core
+   </inner>
+   Last level
+</outer>
