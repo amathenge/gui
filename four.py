@@ -6,26 +6,50 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 
+# create the Tk() window
 root = tk.Tk()
+# set the window titlel
 root.title("Tony's Calculator")
+# set the width and height of the window
 # root.geometry('400x400+0+0')
 root.minsize(height=200, width=200) # should change this when app is ready.
 
+# create a style for the calculator. The calculator will have 8 rows.
+# row 1 = [input box] [=]
+# row 2 = [1][2][3][+]
+# row 3 = [4][5][6][-]
+# row 4 = [7][8][9][*]
+# row 5 = [(][0][)][/]
+# row 6 = [memory][.]
+# row 7 = [M][M+][CM][CA]
+# row 8 = [MG]
+# the last rows are memory options:
+#   M = put the calculation into memory - clear existing memory calculation
+#   M+ = add/append the calculation to existing memory calculation (+)
+#   CM = clear memory
+#   CA = clear memory and also calculation box
+#   MG = get memory contents and put them in the calculation box
 style = ttk.Style(root)
 style.theme_use('clam')
 style.configure('T1.TEntry', foreground='yellow', background='black', fieldbackground='black')
 style.configure('T1.TEntry', insertcolor='blue', insertwidth=8)
+# create the label
 txt1 = ttk.Entry(root)
 txt1.configure(font = ('Cascadia Code PL', 12, 'normal'), style='T1.TEntry')
 # txt1.configure(state='disabled')
+# Add the label to the grid at (0,0)
 txt1.grid(row=0, column=0, columnspan=3, sticky=tk.E+tk.W+tk.S+tk.N, padx=5, pady=5)
 
+# function to save the calculation to the box in row 6 [memory]
 def buildCommand(item):
     txt = txt1.get()
     txt += str(item)
     txt1.delete(0,tk.END)
     txt1.insert(0, txt)
 
+# function to calculate.
+# txt1 has the calculation. Use Python's eval() function to calculate.
+# display the answer in the same txt1 after an '=' sign.
 def doMath():
     try:
         res = eval(txt1.get())
@@ -39,18 +63,23 @@ def doMath():
     txt1.delete(0, tk.END)
     txt1.insert(0, txt)
 
+# create a global variale to hold saved calculations [memory]
 # memory buffer stuff.
 # globals are bad, but we'll use them
 mem = tk.StringVar()
 mem.set('')
 
+# function for row 6 - memory.
 def memAction(action):
+    # take the calculation and add it to memory - remove existing memory
     if action == 'M':
         txt = txt1.get()
-        # remove the sum, if it's there
+        # remove the sum, if it's there in txt1 (calculation)
         while '=' in txt:
             txt = txt[0:txt.rfind('=')]
+        # replace the content of the global memory variable with the calculation
         mem.set(txt)
+    # add this calculation to the calculation already in memory.
     elif action == 'M+':
         tmp1 = mem.get()
         tmp2 = txt1.get()
@@ -58,34 +87,48 @@ def memAction(action):
             tmp2 = tmp2[0:tmp2.rfind('=')]
         tmp3 = tmp1 + '+(' + tmp2 + ')'
         mem.set(tmp3)
+    # clear the memory
     elif action == 'CM':
         mem.set('')
+    # clear the memory, and also clear the calculation box.
     elif action == 'CA':
         mem.set('')
         txt1.delete(0, tk.END)
+    # get the contents of the memory and put them in the calculation box.
     elif action == 'MG':
         txt1.delete(0, tk.END)
         txt1.insert(0, mem.get())
     else:
         pass
 
+# event listener - when the Return key on the keyboard is pressed, do the calculation.
+# this supplments the "=" button.
 def keyAction(event):
     if event.keysym == 'Return':
         doMath()
 
+# this function will be bound to <Control-m> to add the calculation to memory
 def keyMemory(event):
     memAction('M+')
 
+# this function will be bound to <Control-c> to clear everything
 def keyClear(event):
     memAction('CA')
 
+# bind three keys to functions
+# <KeyPress> = Return key
+# <Control-m> = CTRL+M sequence
+# <Control-c> = CTRL+C sequence
 root.bind('<KeyPress>', keyAction)
 root.bind('<Control-m>', keyMemory)
 root.bind('<Control-c>', keyClear)
 
+# create a style to be used for the buttons.
 style = ttk.Style(root)
 style.configure('B1.TButton', ipadx=10, height=50, width=5, justify='center', font=('Cascadia Code PL', 11, 'bold'))
 
+# I don't quite remember why we create a 1x1 pixel image and add it to the button. I think it was for
+# centering the text (hence the compound="center" option)
 # equals button - next to entry box
 # need pixel heights...
 img1 = tk.PhotoImage(width=1, height=1)
@@ -175,6 +218,7 @@ btn17 = ttk.Button(root, text='/', image=img1, compound='center', style='B1.TBut
 btn17.configure(command=lambda:buildCommand('/'))
 btn17.grid(row=4, column=3, padx=5, pady=5)
 
+# use a label for the memory box (contents cannot be altered by typing them in)
 lbl1 = ttk.Label(root, textvariable=mem)
 lbl1.configure(font = ('Cascadia Code PL', 12, 'normal'))
 lbl1.configure(foreground='yellow', background='black')
